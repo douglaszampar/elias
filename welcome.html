@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Welcome Class</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container center">
+
+<h1 class="title">Welcome Class</h1>
+
+<div id="topics">
+
+<div class="topicCard" onclick="startTopic(0)">
+🌴 Tell me about your vacations
+</div>
+
+<div class="topicCard" onclick="startTopic(1)">
+🚀 Inspirations and Aspirations for 2026
+</div>
+
+<div class="topicCard" onclick="startTopic(2)">
+📚 Something new I learned
+</div>
+
+<div class="topicCard" onclick="startTopic(3)">
+💪 A challenge I overcame
+</div>
+
+<div class="topicCard" onclick="startTopic(4)">
+🎯 One goal for this semester
+</div>
+
+</div>
+
+<div id="activity" style="display:none;">
+
+<h2 id="activityTitle"></h2>
+
+<div id="exercise"></div>
+
+</div>
+
+<script src="welcome.js"></script>
+</body>
+</html>
