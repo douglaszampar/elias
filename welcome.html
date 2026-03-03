@@ -1,49 +1,277 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Welcome Class</title>
-<link rel="stylesheet" href="style.css">
-</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vacation Game</title>
 
+<style>
+
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#0e1d2e;
+color:#f4f4f4;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+h1{
+text-align:center;
+padding:15px;
+margin:0;
+font-size:1.8rem;
+color:#ff6400;
+}
+
+.game{
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+padding:20px;
+}
+
+.sentences{
+display:flex;
+flex-direction:column;
+gap:30px;
+}
+
+.sentence{
+font-size:1.3rem;
+line-height:2;
+padding:20px;
+border-radius:15px;
+background:#13283f;
+transition:0.4s;
+}
+
+.completed{
+background:#1f3f5b;
+box-shadow:0 0 20px #ff6400;
+}
+
+.dropzone{
+display:inline-block;
+min-width:60px;
+padding:5px 8px;
+margin:3px;
+border-bottom:2px dashed #ff6400;
+transition:0.3s;
+}
+
+.dropzone.highlight{
+background:#ff6400;
+color:#0e1d2e;
+border-radius:6px;
+}
+
+.wordbank{
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+justify-content:center;
+padding:20px;
+background:#13283f;
+border-radius:20px;
+margin-top:20px;
+}
+
+.word{
+background:#ff6400;
+color:#0e1d2e;
+padding:8px 14px;
+border-radius:10px;
+cursor:pointer;
+user-select:none;
+transition:0.2s;
+position:relative;
+}
+
+.word:hover{
+transform:scale(1.05);
+}
+
+.controls{
+display:flex;
+justify-content:space-between;
+margin-top:15px;
+}
+
+button{
+background:#ff6400;
+color:#0e1d2e;
+border:none;
+padding:8px 16px;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+opacity:0.85;
+}
+
+</style>
+</head>
 <body>
 
-<div class="container center">
+<h1>🌴 Vacation & Free Time</h1>
 
-<h1 class="title">Welcome Class</h1>
+<div class="game">
 
-<div id="topics">
+<div class="sentences" id="sentences"></div>
 
-<div class="topicCard" onclick="startTopic(0)">
-🌴 Tell me about your vacations
-</div>
+<div class="wordbank" id="wordbank"></div>
 
-<div class="topicCard" onclick="startTopic(1)">
-🚀 Inspirations and Aspirations for 2026
-</div>
-
-<div class="topicCard" onclick="startTopic(2)">
-📚 Something new I learned
-</div>
-
-<div class="topicCard" onclick="startTopic(3)">
-💪 A challenge I overcame
-</div>
-
-<div class="topicCard" onclick="startTopic(4)">
-🎯 One goal for this semester
+<div class="controls">
+<button onclick="resetScreen()">Reset</button>
+<button onclick="nextScreen()">Next ➜</button>
 </div>
 
 </div>
 
-<div id="activity" style="display:none;">
+<script>
 
-<h2 id="activityTitle"></h2>
+const screens = [
+[
+"What was the best moment of your vacation? Why?",
+"Did you learn something new during the holidays?"
+],
+[
+"Did you watch any good movie or series?",
+"Did you travel somewhere or stay at home?"
+],
+[
+"What was your most relaxing day like?"
+]
+];
 
-<div id="exercise"></div>
+let currentScreen=0;
+let selectedWord=null;
 
-</div>
+function loadScreen(){
 
-<script src="welcome.js"></script>
+const sentenceContainer=document.getElementById("sentences");
+const wordbank=document.getElementById("wordbank");
+
+sentenceContainer.innerHTML="";
+wordbank.innerHTML="";
+
+let words=[];
+
+screens[currentScreen].forEach(text=>{
+
+let div=document.createElement("div");
+div.className="sentence";
+
+let clean=text.replace("?","").split(" ");
+
+clean.forEach(word=>{
+let span=document.createElement("span");
+span.className="dropzone";
+span.dataset.word=word;
+div.appendChild(span);
+div.append(" ");
+words.push(word);
+});
+
+div.append("?");
+let btn=document.createElement("button");
+btn.textContent="🔊";
+btn.onclick=()=>speak(text);
+div.appendChild(btn);
+
+sentenceContainer.appendChild(div);
+
+});
+
+words=shuffle(words);
+
+words.forEach(word=>{
+let div=document.createElement("div");
+div.className="word";
+div.textContent=word;
+
+div.onclick=()=>{
+selectedWord=div;
+document.querySelectorAll(".word").forEach(w=>w.style.opacity="1");
+div.style.opacity="0.6";
+};
+
+wordbank.appendChild(div);
+});
+
+addDropEvents();
+}
+
+function addDropEvents(){
+
+document.querySelectorAll(".dropzone").forEach(zone=>{
+
+zone.addEventListener("click",()=>{
+
+if(selectedWord && zone.textContent===""){
+
+if(selectedWord.textContent===zone.dataset.word){
+
+zone.textContent=selectedWord.textContent;
+zone.classList.add("highlight");
+
+setTimeout(()=>{
+zone.classList.remove("highlight");
+},300);
+
+selectedWord.remove();
+selectedWord=null;
+
+checkCompletion(zone.closest(".sentence"));
+}
+
+}
+
+});
+
+});
+}
+
+function checkCompletion(sentence){
+let zones=sentence.querySelectorAll(".dropzone");
+let complete=true;
+zones.forEach(z=>{
+if(z.textContent==="") complete=false;
+});
+if(complete){
+sentence.classList.add("completed");
+}
+}
+
+function nextScreen(){
+if(currentScreen<screens.length-1){
+currentScreen++;
+loadScreen();
+}
+}
+
+function resetScreen(){
+loadScreen();
+}
+
+function shuffle(arr){
+return arr.sort(()=>Math.random()-0.5);
+}
+
+function speak(text){
+let utterance=new SpeechSynthesisUtterance(text);
+utterance.lang="en-US";
+speechSynthesis.speak(utterance);
+}
+
+loadScreen();
+
+</script>
+
 </body>
 </html>
